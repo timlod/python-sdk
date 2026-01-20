@@ -5,7 +5,7 @@ from datetime import datetime
 class Artist:
 
     @staticmethod
-    def get_artists(
+    async def get_artists(
         country_code=None,
         city_key=None,
         offset=0,
@@ -53,11 +53,11 @@ class Artist:
             "limit": limit,
         }
 
-        result = request_looper(endpoint, params, body, print_progress=print_progress)
+        result = await request_looper(endpoint, params, body, print_progress=print_progress)
         return result if result is not None else {}
 
     @staticmethod
-    def get_artist_metadata(artist_uuid):
+    async def get_artist_metadata(artist_uuid):
         """
         Get artist metadata/ISNI/IPI numbers using their UUID.
 
@@ -66,11 +66,11 @@ class Artist:
         """
 
         endpoint = f"/api/v2.9/artist/{artist_uuid}"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_artist_by_platform_id(platform, identifier):
+    async def get_artist_by_platform_id(platform, identifier):
         """
         Get Soundcharts' UUID and artist metadata based on platform IDs.
 
@@ -80,11 +80,11 @@ class Artist:
         """
 
         endpoint = f"/api/v2.9/artist/by-platform/{platform}/{identifier}"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_ids(artist_uuid, platform=None, only_default=False, offset=0, limit=100):
+    async def get_ids(artist_uuid, platform=None, only_default=False, offset=0, limit=100):
         """
         Get platform URLs/ISNI associated with a specific artist.
 
@@ -103,11 +103,11 @@ class Artist:
         }
 
         endpoint = f"/api/v2/artist/{artist_uuid}/identifiers"
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_songs(artist_uuid, offset=0, limit=100, sort_by="name", sort_order="asc"):
+    async def get_songs(artist_uuid, offset=0, limit=100, sort_by="name", sort_order="asc"):
         """
         Get songs by a specific artist, including tracks in which the artist is featured.
 
@@ -126,11 +126,11 @@ class Artist:
             "sortBy": sort_by,
             "sortOrder": sort_order,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_albums(
+    async def get_albums(
         artist_uuid,
         album_type="all",
         offset=0,
@@ -158,11 +158,11 @@ class Artist:
             "sortBy": sort_by,
             "sortOrder": sort_order,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_similar_artists(artist_uuid, offset=0, limit=20):
+    async def get_similar_artists(artist_uuid, offset=0, limit=20):
         """
         Get similar artists ("Fans Also Like") from Spotify.
 
@@ -174,11 +174,11 @@ class Artist:
 
         endpoint = f"/api/v2/artist/{artist_uuid}/related"
         params = {"offset": offset, "limit": min(limit, 20)}
-        result = request_wrapper(endpoint, params)
+        result = await request_wrapper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_current_stats(artist_uuid, period=7):
+    async def get_current_stats(artist_uuid, period=7):
         """
         Get all the current audience, streaming, popularity, and retention stats for an artist.
 
@@ -189,11 +189,11 @@ class Artist:
 
         endpoint = f"/api/v2/artist/{artist_uuid}/current/stats"
         params = {"period": period}
-        result = request_wrapper(endpoint, params)
+        result = await request_wrapper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_soundcharts_score(artist_uuid, start_date=None, end_date=None):
+    async def get_soundcharts_score(artist_uuid, start_date=None, end_date=None):
         """
         This API returns 3 Soundcharts scores per artist: score, fanbase score and trending score.
 
@@ -205,11 +205,11 @@ class Artist:
 
         endpoint = f"/api/v2/artist/{artist_uuid}/soundcharts/score"
         params = {"startDate": start_date, "endDate": end_date}
-        result = request_wrapper(endpoint, params)
+        result = await request_wrapper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_audience(artist_uuid, platform="spotify", start_date=None, end_date=None):
+    async def get_audience(artist_uuid, platform="spotify", start_date=None, end_date=None):
         """
         Get an artist's followers across services.
 
@@ -222,11 +222,11 @@ class Artist:
 
         endpoint = f"/api/v2/artist/{artist_uuid}/audience/{platform}"
         params = {"startDate": start_date, "endDate": end_date}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return {} if result is None or len(result) == 0 else sort_items_by_date(result)
 
     @staticmethod
-    def get_local_audience(
+    async def get_local_audience(
         artist_uuid, platform="instagram", start_date=None, end_date=None
     ):
         """
@@ -241,11 +241,11 @@ class Artist:
 
         endpoint = f"/api/v2.37/artist/{artist_uuid}/social/{platform}/followers/"
         params = {"startDate": start_date, "endDate": end_date}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return {} if result is None or len(result) == 0 else sort_items_by_date(result)
 
     @staticmethod
-    def get_streaming_audience(
+    async def get_streaming_audience(
         artist_uuid, platform="spotify", start_date=None, end_date=None
     ):
         """
@@ -259,11 +259,11 @@ class Artist:
         """
         endpoint = f"/api/v2/artist/{artist_uuid}/streaming/{platform}/listening"
         params = {"startDate": start_date, "endDate": end_date}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return {} if result is None or len(result) == 0 else sort_items_by_date(result)
 
     @staticmethod
-    def get_local_streaming_audience(
+    async def get_local_streaming_audience(
         artist_uuid, platform="spotify", start_date=None, end_date=None
     ):
         """
@@ -277,11 +277,11 @@ class Artist:
         """
         endpoint = f"/api/v2/artist/{artist_uuid}/streaming/{platform}"
         params = {"startDate": start_date, "endDate": end_date}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return {} if result is None or len(result) == 0 else sort_items_by_date(result)
 
     @staticmethod
-    def get_retention(artist_uuid, platform="spotify", start_date=None, end_date=None):
+    async def get_retention(artist_uuid, platform="spotify", start_date=None, end_date=None):
         """
         Get an artist's fan retention rate across platforms.
 
@@ -293,11 +293,11 @@ class Artist:
         """
         endpoint = f"/api/v2/artist/{artist_uuid}/{platform}/retention"
         params = {"startDate": start_date, "endDate": end_date}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return {} if result is None else sort_items_by_date(result)
 
     @staticmethod
-    def get_popularity(artist_uuid, platform="spotify", start_date=None, end_date=None):
+    async def get_popularity(artist_uuid, platform="spotify", start_date=None, end_date=None):
         """
         Get daily values for artist popularity (spotify and tidal).
 
@@ -309,11 +309,11 @@ class Artist:
         """
         endpoint = f"/api/v2/artist/{artist_uuid}/popularity/{platform}"
         params = {"startDate": start_date, "endDate": end_date}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return {} if result is None else sort_items_by_date(result)
 
     @staticmethod
-    def get_audience_report_latest(artist_uuid, platform):
+    async def get_audience_report_latest(artist_uuid, platform):
         """
         Get the latest demographics reports for social/streaming platforms.
 
@@ -322,11 +322,11 @@ class Artist:
         :return: JSON response or an empty dictionary.
         """
         endpoint = f"/api/v2/artist/{artist_uuid}/audience/{platform}/report/latest"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_audience_report_dates(
+    async def get_audience_report_dates(
         artist_uuid, platform, start_date=None, end_date=None, offset=0, limit=100
     ):
         """
@@ -349,11 +349,11 @@ class Artist:
             "offset": offset,
             "limit": limit,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return {} if result is None else sort_items_by_date(result, True)
 
     @staticmethod
-    def get_audience_report_for_a_date(artist_uuid, platform, date):
+    async def get_audience_report_for_a_date(artist_uuid, platform, date):
         """
         Get the demographics reports for social/streaming platforms for a specific date.
 
@@ -363,11 +363,11 @@ class Artist:
         :return: JSON response or an empty dictionary.
         """
         endpoint = f"/api/v2/artist/{artist_uuid}/audience/{platform}/report/{date}"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_short_videos(artist_uuid, platform="instagram", offset=0, limit=100):
+    async def get_short_videos(artist_uuid, platform="instagram", offset=0, limit=100):
         """
         Get an artist’s short videos, and the current audience of each video (comments/likes/views).
 
@@ -379,11 +379,11 @@ class Artist:
         """
         endpoint = f"/api/v2/artist/{artist_uuid}/shorts/{platform}/videos"
         params = {"offset": offset, "limit": limit}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_short_video_audience(identifier, start_date=None, end_date=None):
+    async def get_short_video_audience(identifier, start_date=None, end_date=None):
         """
         Get artist metadata/ISNI/IPI numbers using their UUID.
 
@@ -394,11 +394,11 @@ class Artist:
         """
         endpoint = f"/api/v2/artist/shorts/{identifier}/audience"
         params = {"startDate": start_date, "endDate": end_date}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return {} if result is None else sort_items_by_date(result, True)
 
     @staticmethod
-    def get_chart_song_entries(
+    async def get_chart_song_entries(
         artist_uuid,
         platform="spotify",
         current_only=1,
@@ -427,11 +427,11 @@ class Artist:
             "sortBy": sort_by,
             "sortOrder": sort_order,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_chart_album_entries(
+    async def get_chart_album_entries(
         artist_uuid,
         platform="spotify",
         current_only=1,
@@ -460,11 +460,11 @@ class Artist:
             "sortBy": sort_by,
             "sortOrder": sort_order,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_playlist_entries(
+    async def get_playlist_entries(
         artist_uuid,
         platform="spotify",
         playlist_type="all",
@@ -510,11 +510,11 @@ class Artist:
             "sortBy": sort_by,
             "sortOrder": sort_order,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_playlist_reach(
+    async def get_playlist_reach(
         artist_uuid,
         platform="spotify",
         playlist_type="all",
@@ -544,11 +544,11 @@ class Artist:
             "offset": offset,
             "limit": limit,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_radio_spins(
+    async def get_radio_spins(
         artist_uuid,
         radio_slugs=None,
         country_code=None,
@@ -579,11 +579,11 @@ class Artist:
             "offset": offset,
             "limit": limit,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_radio_spin_count(
+    async def get_radio_spin_count(
         artist_uuid,
         radio_slugs=None,
         country_code=None,
@@ -614,11 +614,11 @@ class Artist:
             "offset": offset,
             "limit": limit,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_events(
+    async def get_events(
         artist_uuid,
         event_type="all",
         start_date=None,
@@ -651,11 +651,11 @@ class Artist:
             "sortBy": sort_by,
             "sortOrder": sort_order,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def add_links(artist_uuid, links):
+    async def add_links(artist_uuid, links):
         """
         Add/submit missing links to artist profiles.
 
@@ -667,5 +667,5 @@ class Artist:
 
         body = {"urls": links}
 
-        result = request_wrapper(endpoint, body=body)
+        result = await request_wrapper(endpoint, body=body)
         return result if result is not None else {}

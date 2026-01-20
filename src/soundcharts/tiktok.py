@@ -5,7 +5,7 @@ import json
 class Tiktok:
 
     @staticmethod
-    def get_music(identifier):
+    async def get_music(identifier):
         """
         Get metadata for the TikTok ID. This endpoint is restricted to specific plans.
 
@@ -14,11 +14,11 @@ class Tiktok:
         """
 
         endpoint = f"/api/v2/tiktok/music/{identifier}"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_music_video_count(identifier, end_date=None, period=90):
+    async def get_music_video_count(identifier, end_date=None, period=90):
         """
         Get the video count for a specific TikTok ID. This endpoint is restricted to specific plans.
 
@@ -30,11 +30,11 @@ class Tiktok:
 
         endpoint = f"/api/v2/tiktok/music/{identifier}/video/volume"
         params = {"endDate": end_date, "period": period}
-        result = request_wrapper(endpoint, params)
+        result = await request_wrapper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_music_videos(identifier, offset=0, limit=100):
+    async def get_music_videos(identifier, offset=0, limit=100):
         """
         Get the audience metric (comment/shares/likes/play) for this link’s top videos. This endpoint is restricted to specific plans.
 
@@ -46,11 +46,11 @@ class Tiktok:
 
         endpoint = f"/api/v2/tiktok/music/{identifier}/videos"
         params = {"offset": offset, "limit": limit}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_user(username):
+    async def get_user(username):
         """
         Get the ID and the follower count for a specific user. This endpoint is restricted to specific plans.
 
@@ -59,11 +59,11 @@ class Tiktok:
         """
 
         endpoint = f"/api/v2/tiktok/user/{username}"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_video(identifier):
+    async def get_video(identifier):
         """
         Get the video’s current audience data (comments/likes/plays/shares) and the user’s ID and data. This endpoint is restricted to specific plans.
 
@@ -72,11 +72,11 @@ class Tiktok:
         """
 
         endpoint = f"/api/v2/tiktok/video/{identifier}"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def add_music_links(links):
+    async def add_music_links(links):
         """
         Add missing TikTok music links. This endpoint is restricted to specific plans.
 
@@ -87,11 +87,11 @@ class Tiktok:
 
         body = json.dumps({"urls": links})
 
-        result = request_wrapper(endpoint, body=body)
+        result = await request_wrapper(endpoint, body=body)
         return result if result is not None else {}
 
     @staticmethod
-    def add_user_links(links):
+    async def add_user_links(links):
         """
         Add missing TikTok users. This endpoint is restricted to specific plans.
 
@@ -102,5 +102,5 @@ class Tiktok:
 
         body = json.dumps({"urls": links})
 
-        result = request_wrapper(endpoint, body=body)
+        result = await request_wrapper(endpoint, body=body)
         return result if result is not None else {}

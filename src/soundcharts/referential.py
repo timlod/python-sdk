@@ -4,67 +4,67 @@ from .api_util import request_wrapper, request_looper
 class Referential:
 
     @staticmethod
-    def get_platforms():
+    async def get_platforms():
         """
         Get all available platforms on Soundcharts.
         :return: JSON response or an empty dictionary.
         """
         endpoint = "/api/v2/referential/platforms"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_platforms_for_audience_data():
+    async def get_platforms_for_audience_data():
         """
         Get all platforms for which Soundcharts gets audience data for artists.
         :return: JSON response or an empty dictionary.
         """
         endpoint = "/api/v2/referential/platforms/social"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_platforms_for_streaming_data():
+    async def get_platforms_for_streaming_data():
         """
         Get all platforms for which Soundcharts gets streaming data for artists.
         :return: JSON response or an empty dictionary.
         """
         endpoint = "/api/v2/referential/platforms/streaming"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_platforms_for_song_charts():
+    async def get_platforms_for_song_charts():
         """
         Get a listing of platforms for which Soundcharts stores song charts.
         :return: JSON response or an empty dictionary.
         """
         endpoint = "/api/v2/chart/song/platforms"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_platforms_for_album_charts():
+    async def get_platforms_for_album_charts():
         """
         Get a listing of platforms for which Soundcharts stores album charts.
         :return: JSON response or an empty dictionary.
         """
         endpoint = "/api/v2/chart/album/platforms"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_platforms_for_playlist_data():
+    async def get_platforms_for_playlist_data():
         """
         Get all platforms for which Soundcharts tracks playlists.
         :return: JSON response or an empty dictionary.
         """
         endpoint = "/api/v2/playlist/platforms"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_radio_country_list(offset=0, limit=100):
+    async def get_radio_country_list(offset=0, limit=100):
         """
         Get the listing of countries where Soundcharts tracks at least 1 radio station.
         :param offset: Pagination offset. Default: 0.
@@ -73,11 +73,11 @@ class Referential:
         """
         endpoint = "/api/v2/radio/countries"
         params = {"offset": offset, "limit": limit}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_artist_genres(genre="all", sort_order="asc"):
+    async def get_artist_genres(genre="all", sort_order="asc"):
         """
         Get all artist genres and the associated subgenres.
         :param genre: Select a specific parent genre. Default: all.
@@ -86,11 +86,11 @@ class Referential:
         """
         endpoint = "/api/v2/artist/genres"
         params = {"genre": genre, "sortOrder": sort_order}
-        result = request_wrapper(endpoint, params)
+        result = await request_wrapper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_cities_for_artist_ranking(
+    async def get_cities_for_artist_ranking(
         country_code, search_city=None, offset=0, limit=100
     ):
         """
@@ -103,11 +103,11 @@ class Referential:
         """
         endpoint = f"/api/v2/top-artist/referential/cities/{country_code}"
         params = {"searchCity": search_city, "offset": offset, "limit": limit}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_song_genres(genre="all", sort_order="asc"):
+    async def get_song_genres(genre="all", sort_order="asc"):
         """
         Get all song genres and the associated subgenres.
         This endpoint is useful for the Get Songs endpoint.
@@ -117,22 +117,22 @@ class Referential:
         """
         endpoint = "/api/v2/referential/song/genres"
         params = {"genre": genre, "sortOrder": sort_order}
-        result = request_wrapper(endpoint, params)
+        result = await request_wrapper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_label_types():
+    async def get_label_types():
         """
         Get all label types.
         This endpoint is useful for the Get Songs endpoint.
         :return: JSON response or an empty dictionary.
         """
         endpoint = "/api/v2/referential/label-types"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_distributors(offset=0, limit=100):
+    async def get_distributors(offset=0, limit=100):
         """
         Get all distributors.
         This endpoint is useful for the Get Songs endpoint.
@@ -142,11 +142,11 @@ class Referential:
         """
         endpoint = "/api/v2/referential/distributors"
         params = {"offset": offset, "limit": limit}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_lyrics_attributes(attribute, term=None, offset=0, limit=100):
+    async def get_lyrics_attributes(attribute, term=None, offset=0, limit=100):
         """
         Get the list of available values by lyrics attribute.
         :param attribute: The type of attribute. Available values : themes, moods, culturalReferencePeople, culturalReferenceNonPeople, brands, locations.
@@ -162,5 +162,5 @@ class Referential:
             "offset": offset,
             "limit": limit,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}

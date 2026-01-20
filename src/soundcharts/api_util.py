@@ -71,7 +71,7 @@ def setup(
     logger.addHandler(log_file_handler)
 
 
-async def _request_wrapper_async(
+async def request_wrapper(
     endpoint,
     params=None,
     body=None,
@@ -237,7 +237,7 @@ async def _request_wrapper_async(
             await session.close()
 
 
-async def _request_looper_async(endpoint, params=None, body=None, print_progress=False):
+async def request_looper(endpoint, params=None, body=None, print_progress=False):
     """
     Async paginator with parallel fetching.
     """
@@ -269,7 +269,7 @@ async def _request_looper_async(endpoint, params=None, body=None, print_progress
     async with aiohttp.ClientSession(timeout=timeout_cfg) as session:
         # First page
         first_params = params.copy()
-        results = await _request_wrapper_async(
+        results = await request_wrapper(
             endpoint,
             first_params,
             body=body,
@@ -315,7 +315,7 @@ async def _request_looper_async(endpoint, params=None, body=None, print_progress
             page_params["offset"] = off
             page_params["limit"] = min(page_size, total - off)
             async with sem:
-                return await _request_wrapper_async(
+                return await request_wrapper(
                     endpoint,
                     page_params,
                     body=body,
@@ -350,68 +350,6 @@ async def _request_looper_async(endpoint, params=None, body=None, print_progress
             results["page"]["total"] = total
 
         return results
-
-
-def _run_blocking(coro):
-    """
-    Run an async coroutine in a blocking way.
-    Used to provide a sync public API on top of async internals.
-    """
-    try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError:
-        # No running loop -> normal script -> safe
-        return asyncio.run(coro)
-    else:
-        # Already in an event loop -> calling sync API from async code is a bad idea
-        raise RuntimeError(
-            "Soundcharts sync API called from an async context. "
-            "Use the async API directly instead."
-        )
-
-
-def request_wrapper(
-    endpoint,
-    params=None,
-    body=None,
-    max_retries=None,
-    retry_delay=None,
-    timeout=None,
-    method=None,
-):
-    """
-    Public sync API: wraps the async paginator.
-    """
-    return _run_blocking(
-        _request_wrapper_async(
-            endpoint,
-            params=params,
-            body=body,
-            max_retries=max_retries,
-            retry_delay=retry_delay,
-            timeout=timeout,
-            method=method,
-        )
-    )
-
-
-def request_looper(
-    endpoint,
-    params=None,
-    body=None,
-    print_progress=False,
-):
-    """
-    Public sync API: wraps the async paginator.
-    """
-    return _run_blocking(
-        _request_looper_async(
-            endpoint,
-            params=params,
-            body=body,
-            print_progress=print_progress,
-        )
-    )
 
 
 def sort_items_by_date(result, reverse=False, key="date"):

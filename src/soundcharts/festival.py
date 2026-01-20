@@ -4,7 +4,7 @@ from .api_util import request_wrapper, request_looper, sort_items_by_date
 class Festival:
 
     @staticmethod
-    def get_festivals(
+    async def get_festivals(
         offset=0,
         limit=100,
         body=None,
@@ -43,11 +43,11 @@ class Festival:
             "limit": limit,
         }
 
-        result = request_looper(endpoint, params, body, print_progress=print_progress)
+        result = await request_looper(endpoint, params, body, print_progress=print_progress)
         return result if result is not None else {}
 
     @staticmethod
-    def get_festival_metadata(festival_uuid):
+    async def get_festival_metadata(festival_uuid):
         """
         Get the festival’s metadata.
 
@@ -55,11 +55,11 @@ class Festival:
         :return: JSON response or an empty dictionary.
         """
         endpoint = f"/api/v2/festival/{festival_uuid}"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_ids(festival_uuid, platform=None, offset=0, limit=100):
+    async def get_ids(festival_uuid, platform=None, offset=0, limit=100):
         """
         Get platform URLs belonging to this festival.
 
@@ -72,11 +72,11 @@ class Festival:
         params = {"platform": platform, "offset": offset, "limit": limit}
 
         endpoint = f"/api/v2/festival/{festival_uuid}/identifiers"
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_editions(
+    async def get_editions(
         festival_uuid, start_date=None, end_date=None, offset=0, limit=100
     ):
         """
@@ -97,11 +97,11 @@ class Festival:
         }
 
         endpoint = f"/api/v2/festival/{festival_uuid}/editions"
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return {} if result is None else sort_items_by_date(result, True, "startedAt")
 
     @staticmethod
-    def get_edition_details(edition_uuid):
+    async def get_edition_details(edition_uuid):
         """
         Get a specific edition’s details, including the list of programmed artists.
 
@@ -109,5 +109,5 @@ class Festival:
         :return: JSON response or an empty dictionary.
         """
         endpoint = f"/api/v2/festival/edition/{edition_uuid}"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}

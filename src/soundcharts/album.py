@@ -3,7 +3,7 @@ from .api_util import request_wrapper, request_looper
 
 class Album:
     @staticmethod
-    def get_album_metadata(album_uuid):
+    async def get_album_metadata(album_uuid):
         """
         Get an album's metadata using their UUID.
 
@@ -12,11 +12,11 @@ class Album:
         """
 
         endpoint = f"/api/v2.36/album/by-uuid/{album_uuid}"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_album_by_upc(upc):
+    async def get_album_by_upc(upc):
         """
         Get Soundcharts’ UUID & the album's metadata.
 
@@ -25,11 +25,11 @@ class Album:
         """
 
         endpoint = f"/api/v2.36/album/by-upc/{upc}"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_album_by_platform_id(platform, identifier):
+    async def get_album_by_platform_id(platform, identifier):
         """
         Get Soundcharts’ UUID & the album's metadata.
 
@@ -39,11 +39,11 @@ class Album:
         """
 
         endpoint = f"/api/v2.36/album/by-platform/{platform}/{identifier}"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_ids(album_uuid, platform=None, offset=0, limit=100):
+    async def get_ids(album_uuid, platform=None, offset=0, limit=100):
         """
         Get platform URLs/ISNI associated with a specific album.
 
@@ -60,11 +60,11 @@ class Album:
         }
 
         endpoint = f"/api/v2.26/album/{album_uuid}/identifiers"
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_audience(
+    async def get_audience(
         album_uuid,
         platform="spotify",
         start_date=None,
@@ -91,11 +91,11 @@ class Album:
         }
 
         endpoint = f"/api/v2/album/{album_uuid}/audience/{platform}"
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_tracklisting(album_uuid):
+    async def get_tracklisting(album_uuid):
         """
         Get an album's tracklisting using their UUID.
 
@@ -104,11 +104,11 @@ class Album:
         """
 
         endpoint = f"/api/v2.26/album/{album_uuid}/tracks"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_chart_entries(
+    async def get_chart_entries(
         album_uuid,
         platform="spotify",
         current_only=1,
@@ -137,5 +137,5 @@ class Album:
             "sortBy": sort_by,
             "sortOrder": sort_order,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
