@@ -49,6 +49,7 @@ class SoundchartsClient:
         :param file_log_level: The severity of issues written to the logging file. Default: logging.WARNING.
         :param exception_log_level: The severity of issues that cause exceptions. Default: logging.ERROR.
         """
+        self.base_url = base_url
 
         api_setup(
             app_id,
