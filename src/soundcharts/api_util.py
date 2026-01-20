@@ -71,13 +71,13 @@ def setup(
 
 
 async def request_wrapper(
-    endpoint,
-    params=None,
-    body=None,
-    max_retries=None,
-    retry_delay=None,
-    timeout=None,
-    method=None,
+    endpoint: str,
+    params: dict | None = None,
+    body: dict | None = None,
+    max_retries: int | None = None,
+    retry_delay: int | None = None,
+    timeout: int | None = None,
+    method: str | None = None,
     session: aiohttp.ClientSession | None = None,
 ):
     """
@@ -231,7 +231,10 @@ async def request_wrapper(
 
 
 async def request_looper(
-    endpoint, params=None, body=None, print_progress=False
+    endpoint: str,
+    params: dict | None = None,
+    body: dict | None = None,
+    print_progress: bool = False,
 ):
     """
     Async paginator with parallel fetching.
