@@ -117,11 +117,13 @@ async def request_wrapper(
         session = aiohttp.ClientSession(timeout=timeout_cfg)
         owns_session = True
 
+    # Otherwise max_retries=0 will result in no attempts
+    attempts = max_retries + 1
     try:
-        for attempt in range(1, max_retries + 1):
+        for attempt in range(1, attempts + 1):
             try:
                 logger.info(
-                    f"Attempt {attempt}/{max_retries}: {method_name} {full_url}"
+                    f"Attempt {attempt}/{attempts}: {method_name} {full_url}"
                 )
                 logger.debug(f"Headers: {headers}")
                 if params:
@@ -179,10 +181,10 @@ async def request_wrapper(
                     }:
                         retry_delay_override = retry_delay
 
-                    if retry_delay_override is not None and attempt < max_retries:
+                    if retry_delay_override is not None and attempt < attempts:
                         logger.warning(
                             f"{status} Error: {message} when calling {full_url} — "
-                            f"Retrying in {retry_delay_override} seconds ({attempt}/{max_retries})"
+                            f"Retrying in {retry_delay_override} seconds ({attempt}/{attempts})"
                         )
                         await asyncio.sleep(retry_delay_override)
                         continue
@@ -198,7 +200,9 @@ async def request_wrapper(
                             raise RuntimeError(log_msg)
                         return None
 
-                    log_msg = f"{status} Error: {message} when calling {full_url}"
+                    log_msg = (
+                        f"{status} Error: {message} when calling {full_url}"
+                    )
                     logger.error(log_msg)
                     if logging.ERROR >= EXCEPTION_LOG_LEVEL:
                         raise RuntimeError(f"HTTP {status}: {message}")
@@ -206,7 +210,7 @@ async def request_wrapper(
 
             except (aiohttp.ClientError, asyncio.TimeoutError) as e:
                 logger.error(f"Request exception: {e}")
-                if attempt >= max_retries:
+                if attempt >= attempts:
                     raise RuntimeError(
                         f"Maximum retry attempts reached when calling {full_url}."
                     ) from e
