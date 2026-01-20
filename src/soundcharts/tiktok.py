@@ -1,5 +1,6 @@
-from .api_util import request_wrapper, request_looper
 import json
+
+from .api_util import request_looper, request_wrapper
 
 
 class Tiktok:

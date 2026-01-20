@@ -1,4 +1,4 @@
-from .api_util import request_wrapper, request_looper, sort_items_by_date
+from .api_util import request_looper, request_wrapper, sort_items_by_date
 
 
 class Radio:

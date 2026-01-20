@@ -1,4 +1,4 @@
-from .api_util import request_wrapper, request_looper
+from .api_util import request_looper, request_wrapper
 
 
 class Referential:

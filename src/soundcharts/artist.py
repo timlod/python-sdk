@@ -1,5 +1,7 @@
-from .api_util import request_wrapper, request_looper, sort_items_by_date, list_join
 from datetime import datetime
+
+from .api_util import (list_join, request_looper, request_wrapper,
+                       sort_items_by_date)
 
 
 class Artist:
