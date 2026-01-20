@@ -1,5 +1,3 @@
-import json
-
 from .api_util import request_looper, request_wrapper
 
 
@@ -86,7 +84,7 @@ class Tiktok:
         """
         endpoint = f"/api/v2/tiktok/music/urls/add"
 
-        body = json.dumps({"urls": links})
+        body = {"urls": links}
 
         result = await request_wrapper(endpoint, body=body)
         return result if result is not None else {}
@@ -101,7 +99,7 @@ class Tiktok:
         """
         endpoint = f"/api/v2/tiktok/user/urls/add"
 
-        body = json.dumps({"urls": links})
+        body = {"urls": links}
 
         result = await request_wrapper(endpoint, body=body)
         return result if result is not None else {}

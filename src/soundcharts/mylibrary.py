@@ -1,5 +1,3 @@
-import json
-
 from .api_util import request_looper, request_wrapper
 
 
@@ -36,7 +34,7 @@ class MyLibrary:
         """
         endpoint = f"/api/v2/library/artist"
 
-        body = json.dumps({"identifiers": identifiers})
+        body = {"identifiers": identifiers}
 
         result = await request_wrapper(endpoint, body=body)
         return result if result is not None else {}
@@ -57,7 +55,7 @@ class MyLibrary:
         """
         endpoint = f"/api/v2/library/artist"
 
-        body = json.dumps({"identifiers": identifiers})
+        body = {"identifiers": identifiers}
 
         result = await request_wrapper(endpoint, body=body, method="delete")
         return result if result is not None else {}
@@ -93,7 +91,7 @@ class MyLibrary:
         """
         endpoint = f"/api/v2/library/song"
 
-        body = json.dumps({"identifiers": identifiers})
+        body = {"identifiers": identifiers}
 
         result = await request_wrapper(endpoint, body=body)
         return result if result is not None else {}
@@ -114,7 +112,7 @@ class MyLibrary:
         """
         endpoint = f"/api/v2/library/song"
 
-        body = json.dumps({"identifiers": identifiers})
+        body = {"identifiers": identifiers}
 
         result = await request_wrapper(endpoint, body=body, method="delete")
         return result if result is not None else {}
