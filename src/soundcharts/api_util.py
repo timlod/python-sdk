@@ -190,9 +190,11 @@ async def request_wrapper_async(
                         HTTPStatus.SERVICE_UNAVAILABLE,
                         HTTPStatus.GATEWAY_TIMEOUT,
                     }:
+                        if attempt >= attempts:
+                            break
                         logger.warning(
                             f"{status} Error: {message} when calling {full_url} — "
-                            f"Retrying in {retry_delay_override} seconds ({attempt}/{attempts})"
+                            f"Retrying in {retry_delay} seconds ({attempt}/{attempts})"
                         )
                         await asyncio.sleep(retry_delay)
 
@@ -206,6 +208,8 @@ async def request_wrapper_async(
                             status == HTTPStatus.TOO_MANY_REQUESTS
                             and "maximum request count" in message
                         ):
+                            if attempt >= attempts:
+                                break
                             sleep_delay = (
                                 int(response.headers.get("x-ratelimit-reset", 0)) + 1
                             )
@@ -237,6 +241,7 @@ async def request_wrapper_async(
                     raise RuntimeError(
                         f"Maximum retry attempts reached when calling {full_url}."
                     ) from e
+                await asyncio.sleep(retry_delay)
 
         final_msg = (
             f"Unhandled error or maximum retries exceeded when calling {full_url}."
