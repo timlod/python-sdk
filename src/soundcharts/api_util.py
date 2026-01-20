@@ -263,89 +263,103 @@ async def request_looper(
 
     timeout_cfg = aiohttp.ClientTimeout(total=TIMEOUT)
     async with aiohttp.ClientSession(timeout=timeout_cfg) as session:
-        # First page
-        first_params = params.copy()
-        results = await request_wrapper(
-            endpoint,
-            first_params,
-            body=body,
-            session=session,
-        )
+        try:
+            # First page
+            first_params = params.copy()
+            results = await request_wrapper(
+                endpoint,
+                first_params,
+                body=body,
+                session=session,
+            )
 
-        if not results or "items" not in results:
-            return results
+            if not results or "items" not in results:
+                return results
 
-        items = list(results.get("items", []))
+            items = list(results.get("items", []))
 
-        total_server = results.get("page", {}).get("total", len(items))
-        total = limit or total_server
-        total = min(total, total_server)
-
-        if print_progress:
-            print_percentage(len(items), total)
-
-        if len(items) >= total:
-            if limit:
-                results["items"] = items[:limit]
-            else:
-                results["items"] = items
-            if "page" in results:
-                results["page"]["total"] = total
-            return results
-
-        page_size = params.get("limit", 100)
-        extra_offsets = list(range(offset + page_size, total, page_size))
-        if not extra_offsets:
-            if limit:
-                results["items"] = items[:limit]
-            else:
-                results["items"] = items
-            if "page" in results:
-                results["page"]["total"] = total
-            return results
-
-        sem = asyncio.Semaphore(PARALLEL_REQUESTS)
-
-        async def fetch_page(off):
-            page_params = params.copy()
-            page_params["offset"] = off
-            page_params["limit"] = min(page_size, total - off)
-            async with sem:
-                return await request_wrapper(
-                    endpoint,
-                    page_params,
-                    body=body,
-                    session=session,
-                )
-
-        tasks = [asyncio.create_task(fetch_page(o)) for o in extra_offsets]
-
-        for task in asyncio.as_completed(tasks):
-            response = await task
-            if not response or "items" not in response:
-                continue
-
-            page_items = response.get("items", [])
-            if not page_items or len(page_items) == 0:
-                continue
-
-            items.extend(page_items)
+            total_server = results.get("page", {}).get("total", len(items))
+            total = limit or total_server
+            total = min(total, total_server)
 
             if print_progress:
-                progress = min(len(items), total)
-                print_percentage(progress, total)
+                print_percentage(len(items), total)
 
             if len(items) >= total:
-                continue
+                if limit:
+                    results["items"] = items[:limit]
+                else:
+                    results["items"] = items
+                if "page" in results:
+                    results["page"]["total"] = total
+                return results
 
-        if limit:
-            items = items[:limit]
+            page_size = params.get("limit", 100)
+            extra_offsets = list(range(offset + page_size, total, page_size))
+            if not extra_offsets:
+                if limit:
+                    results["items"] = items[:limit]
+                else:
+                    results["items"] = items
+                if "page" in results:
+                    results["page"]["total"] = total
+                return results
 
-        results["items"] = items
-        if "page" in results:
-            results["page"]["total"] = total
+            sem = asyncio.Semaphore(PARALLEL_REQUESTS)
 
-        return results
+            async def fetch_page(off):
+                page_params = params.copy()
+                page_params["offset"] = off
+                page_params["limit"] = min(page_size, total - off)
+                async with sem:
+                    return await request_wrapper(
+                        endpoint,
+                        page_params,
+                        body=body,
+                        session=session,
+                    )
+
+            tasks = [asyncio.create_task(fetch_page(o)) for o in extra_offsets]
+
+            try:
+                for task in asyncio.as_completed(tasks):
+                    response = await task
+                    if not response or "items" not in response:
+                        continue
+
+                    page_items = response.get("items", [])
+                    if not page_items or len(page_items) == 0:
+                        continue
+
+                    items.extend(page_items)
+
+                    if print_progress:
+                        progress = min(len(items), total)
+                        print_percentage(progress, total)
+
+                    if len(items) >= total:
+                        continue
+            except Exception as exc:
+                logger.error(
+                    "Aborting remaining paginated requests after failure: %s",
+                    exc,
+                )
+                for task in tasks:
+                    if not task.done():
+                        task.cancel()
+                await asyncio.gather(*tasks, return_exceptions=True)
+                raise
+
+            if limit:
+                items = items[:limit]
+
+            results["items"] = items
+            if "page" in results:
+                results["page"]["total"] = total
+
+            return results
+        finally:
+            logger.debug("Closing shared session for request_looper.")
 
 
 def sort_items_by_date(result, reverse=False, key="date"):
