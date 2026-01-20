@@ -33,7 +33,9 @@ class Song:
             "limit": limit,
         }
 
-        result = await request_looper(endpoint, params, body, print_progress=print_progress)
+        result = await request_looper(
+            endpoint, params, body, print_progress=print_progress
+        )
         return result if result is not None else {}
 
     @staticmethod
@@ -90,7 +92,9 @@ class Song:
         return result if result is not None else {}
 
     @staticmethod
-    async def get_ids(song_uuid, platform=None, only_default=False, offset=0, limit=100):
+    async def get_ids(
+        song_uuid, platform=None, only_default=False, offset=0, limit=100
+    ):
         """
         Get platform URLs/ISNI associated with a specific song.
 
@@ -169,7 +173,9 @@ class Song:
         return {} if result is None else sort_items_by_date(result, True)
 
     @staticmethod
-    async def get_popularity(song_uuid, platform="spotify", start_date=None, end_date=None):
+    async def get_popularity(
+        song_uuid, platform="spotify", start_date=None, end_date=None
+    ):
         """
         Song popularity metric indicates how popular a song is on a specific platform. It is calculated by the platform.
 

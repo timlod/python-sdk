@@ -53,7 +53,9 @@ class Artist:
             "limit": limit,
         }
 
-        result = await request_looper(endpoint, params, body, print_progress=print_progress)
+        result = await request_looper(
+            endpoint, params, body, print_progress=print_progress
+        )
         return result if result is not None else {}
 
     @staticmethod
@@ -84,7 +86,9 @@ class Artist:
         return result if result is not None else {}
 
     @staticmethod
-    async def get_ids(artist_uuid, platform=None, only_default=False, offset=0, limit=100):
+    async def get_ids(
+        artist_uuid, platform=None, only_default=False, offset=0, limit=100
+    ):
         """
         Get platform URLs/ISNI associated with a specific artist.
 
@@ -107,7 +111,9 @@ class Artist:
         return result if result is not None else {}
 
     @staticmethod
-    async def get_songs(artist_uuid, offset=0, limit=100, sort_by="name", sort_order="asc"):
+    async def get_songs(
+        artist_uuid, offset=0, limit=100, sort_by="name", sort_order="asc"
+    ):
         """
         Get songs by a specific artist, including tracks in which the artist is featured.
 
@@ -209,7 +215,9 @@ class Artist:
         return result if result is not None else {}
 
     @staticmethod
-    async def get_audience(artist_uuid, platform="spotify", start_date=None, end_date=None):
+    async def get_audience(
+        artist_uuid, platform="spotify", start_date=None, end_date=None
+    ):
         """
         Get an artist's followers across services.
 
@@ -281,7 +289,9 @@ class Artist:
         return {} if result is None or len(result) == 0 else sort_items_by_date(result)
 
     @staticmethod
-    async def get_retention(artist_uuid, platform="spotify", start_date=None, end_date=None):
+    async def get_retention(
+        artist_uuid, platform="spotify", start_date=None, end_date=None
+    ):
         """
         Get an artist's fan retention rate across platforms.
 
@@ -297,7 +307,9 @@ class Artist:
         return {} if result is None else sort_items_by_date(result)
 
     @staticmethod
-    async def get_popularity(artist_uuid, platform="spotify", start_date=None, end_date=None):
+    async def get_popularity(
+        artist_uuid, platform="spotify", start_date=None, end_date=None
+    ):
         """
         Get daily values for artist popularity (spotify and tidal).
 

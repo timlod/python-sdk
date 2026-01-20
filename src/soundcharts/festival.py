@@ -43,7 +43,9 @@ class Festival:
             "limit": limit,
         }
 
-        result = await request_looper(endpoint, params, body, print_progress=print_progress)
+        result = await request_looper(
+            endpoint, params, body, print_progress=print_progress
+        )
         return result if result is not None else {}
 
     @staticmethod

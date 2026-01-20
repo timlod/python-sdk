@@ -1,11 +1,12 @@
 import asyncio
-import aiohttp
 import json
 import logging
-from requests.structures import CaseInsensitiveDict
-from http import HTTPStatus
 from datetime import datetime
+from http import HTTPStatus
 from urllib.parse import urlencode
+
+import aiohttp
+from requests.structures import CaseInsensitiveDict
 
 # Logger setup
 logger = logging.getLogger(__name__)
@@ -200,18 +201,14 @@ async def request_wrapper(
                             )
                             await asyncio.sleep(30)
                         else:
-                            log_msg = (
-                                f"{status} Error: {message} when calling {full_url}"
-                            )
+                            log_msg = f"{status} Error: {message} when calling {full_url}"
                             logger.error(log_msg)
                             if logging.ERROR >= EXCEPTION_LOG_LEVEL:
                                 raise RuntimeError(log_msg)
                             return None
 
                     else:
-                        log_msg = (
-                            f"{status} Unknown Error: {message} when calling {full_url}"
-                        )
+                        log_msg = f"{status} Unknown Error: {message} when calling {full_url}"
                         logger.error(log_msg)
                         if logging.ERROR >= EXCEPTION_LOG_LEVEL:
                             raise RuntimeError(f"HTTP {status}: {message}")
@@ -223,9 +220,7 @@ async def request_wrapper(
                         f"Maximum retry attempts reached when calling {full_url}."
                     ) from e
 
-        final_msg = (
-            f"Unhandled error or maximum retries exceeded when calling {full_url}."
-        )
+        final_msg = f"Unhandled error or maximum retries exceeded when calling {full_url}."
         logger.error(final_msg)
         if logging.ERROR >= EXCEPTION_LOG_LEVEL:
             raise RuntimeError(final_msg)
@@ -237,7 +232,9 @@ async def request_wrapper(
             await session.close()
 
 
-async def request_looper(endpoint, params=None, body=None, print_progress=False):
+async def request_looper(
+    endpoint, params=None, body=None, print_progress=False
+):
     """
     Async paginator with parallel fetching.
     """

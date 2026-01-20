@@ -4,7 +4,9 @@ from .api_util import request_wrapper, request_looper, sort_items_by_date
 class Playlist:
 
     @staticmethod
-    async def get_playlists(platform, offset=0, limit=100, body=None, print_progress=False):
+    async def get_playlists(
+        platform, offset=0, limit=100, body=None, print_progress=False
+    ):
         """
         You can sort playlists in our database using specific parameters such as the number of followers, 28-day adds, track count, or last updated date. Apply filters based on attributes like genre, type, country, owner, track age, percentage of adds over the last 28 days, or performance metrics.
         Please note that you can only retrieve the playlists for one platform at a time.
@@ -49,7 +51,9 @@ class Playlist:
         endpoint = f"/api/v2/top/playlists/{platform}"
         params = {"offset": offset, "limit": limit}
 
-        result = await request_looper(endpoint, params, body, print_progress=print_progress)
+        result = await request_looper(
+            endpoint, params, body, print_progress=print_progress
+        )
         return result if result is not None else {}
 
     @staticmethod

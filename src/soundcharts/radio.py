@@ -43,7 +43,9 @@ class Radio:
             "limit": limit,
         }
 
-        result = await request_looper(endpoint, params, body, print_progress=print_progress)
+        result = await request_looper(
+            endpoint, params, body, print_progress=print_progress
+        )
         return result if result is not None else {}
 
     @staticmethod
@@ -62,7 +64,9 @@ class Radio:
         return result if result is not None else {}
 
     @staticmethod
-    async def get_live_feed(radio_slug, start_date=None, end_date=None, offset=0, limit=100):
+    async def get_live_feed(
+        radio_slug, start_date=None, end_date=None, offset=0, limit=100
+    ):
         """
         Get a specific radio’s live feed for a specific range of dates.
 

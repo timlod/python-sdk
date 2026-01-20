@@ -43,7 +43,7 @@ class Search:
     @staticmethod
     async def search_venue_by_name(term, offset=0, limit=20):
         return await search_by_type("venue", term, offset, limit)
-    
+
     @staticmethod
     async def get_soundcharts_url_from_platform_url(platform_url):
         """
