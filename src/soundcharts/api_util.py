@@ -211,7 +211,7 @@ async def request_wrapper(
                         if logging.ERROR >= EXCEPTION_LOG_LEVEL:
                             raise RuntimeError(f"HTTP {status}: {message}")
 
-            except (aiohttp.ClientError, aiohttp.TimeoutError) as e:
+            except (aiohttp.ClientError, asyncio.TimeoutError) as e:
                 logger.error(f"Request exception: {e}")
                 if attempt == max_retries - 1:
                     raise RuntimeError(
