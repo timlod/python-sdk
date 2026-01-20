@@ -117,8 +117,10 @@ async def request_wrapper_async(
         session = aiohttp.ClientSession(timeout=timeout_cfg)
         owns_session = True
 
+    # Otherwise max_retries=0 will result in no attempts
+    attempts = max_retries + 1
     try:
-        for attempt in range(max_retries):
+        for attempt in range(1, attempts + 1):
             try:
                 if method is None:
                     method_name = "POST" if body else "GET"
@@ -133,7 +135,7 @@ async def request_wrapper_async(
                     full_url = url
 
                 logger.info(
-                    f"Attempt {attempt + 1}/{max_retries}: {method_name} {full_url}"
+                    f"Attempt {attempt}/{attempts}: {method_name} {full_url}"
                 )
                 logger.debug(f"Headers: {headers}")
                 if params:
@@ -192,8 +194,8 @@ async def request_wrapper_async(
                         HTTPStatus.GATEWAY_TIMEOUT,
                     }:
                         logger.warning(
-                            f"{status} Server Error: {message} when calling {full_url} — "
-                            f"Retrying ({attempt + 1}/{max_retries})"
+                            f"{status} Error: {message} when calling {full_url} — "
+                            f"Retrying in {retry_delay_override} seconds ({attempt}/{attempts})"
                         )
                         await asyncio.sleep(retry_delay)
 
@@ -212,7 +214,7 @@ async def request_wrapper_async(
                             )
                             logger.warning(
                                 f"{status} Error: {message} when calling {full_url} — "
-                                f"Retrying in {sleep_delay} seconds ({attempt + 1}/{max_retries})"
+                                f"Retrying in {sleep_delay} seconds ({attempt + 1}/{attempts})"
                             )
                             await asyncio.sleep(sleep_delay)
                         else:
@@ -234,7 +236,7 @@ async def request_wrapper_async(
 
             except aiohttp.ClientError as e:
                 logger.error(f"Request exception: {e}")
-                if attempt == max_retries - 1:
+                if attempt >= attempts:
                     raise RuntimeError(
                         f"Maximum retry attempts reached when calling {full_url}."
                     ) from e
