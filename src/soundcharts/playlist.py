@@ -1,10 +1,12 @@
-from .api_util import request_wrapper, request_looper, sort_items_by_date
+from .api_util import request_looper, request_wrapper, sort_items_by_date
 
 
 class Playlist:
 
     @staticmethod
-    def get_playlists(platform, offset=0, limit=100, body=None, print_progress=False):
+    async def get_playlists(
+        platform, offset=0, limit=100, body=None, print_progress=False
+    ):
         """
         You can sort playlists in our database using specific parameters such as the number of followers, 28-day adds, track count, or last updated date. Apply filters based on attributes like genre, type, country, owner, track age, percentage of adds over the last 28 days, or performance metrics.
         Please note that you can only retrieve the playlists for one platform at a time.
@@ -49,11 +51,13 @@ class Playlist:
         endpoint = f"/api/v2/top/playlists/{platform}"
         params = {"offset": offset, "limit": limit}
 
-        result = request_looper(endpoint, params, body, print_progress=print_progress)
+        result = await request_looper(
+            endpoint, params, body, print_progress=print_progress
+        )
         return result if result is not None else {}
 
     @staticmethod
-    def get_playlist_metadata(playlist_uuid):
+    async def get_playlist_metadata(playlist_uuid):
         """
         Get a playlist's metadata using their UUID.
 
@@ -62,11 +66,11 @@ class Playlist:
         """
 
         endpoint = f"/api/v2.8/playlist/{playlist_uuid}"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_playlist_by_platform_id(platform, identifier, country_code=None):
+    async def get_playlist_by_platform_id(platform, identifier, country_code=None):
         """
         Get Soundcharts’ UUID & the playlist's metadata.
 
@@ -78,11 +82,11 @@ class Playlist:
 
         endpoint = f"/api/v2.8/playlist/by-platform/{platform}/{identifier}"
         params = {"countryCode": country_code}
-        result = request_wrapper(endpoint, params)
+        result = await request_wrapper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_curators_by_platform(platform="spotify", offset=0, limit=100):
+    async def get_curators_by_platform(platform="spotify", offset=0, limit=100):
         """
         Get the listing of all playlist curators know by Soundcharts.
 
@@ -93,11 +97,11 @@ class Playlist:
         """
         endpoint = f"/api/v2/playlist/curators/{platform}"
         params = {"offset": offset, "limit": limit}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_playlists_by_curator(
+    async def get_playlists_by_curator(
         platform,
         curator_identifier,
         country_code=None,
@@ -126,11 +130,11 @@ class Playlist:
             "sortBy": sort_by,
             "sortOrder": sort_order,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_playlists_by_type(
+    async def get_playlists_by_type(
         platform,
         playlist_type,
         country_code=None,
@@ -159,11 +163,11 @@ class Playlist:
             "sortBy": sort_by,
             "sortOrder": sort_order,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_audience(playlist_uuid, start_date=None, end_date=None):
+    async def get_audience(playlist_uuid, start_date=None, end_date=None):
         """
         Get the playlist’s number of followers/fans/views.
 
@@ -175,11 +179,11 @@ class Playlist:
 
         endpoint = f"/api/v2.20/playlist/{playlist_uuid}/audience"
         params = {"startDate": start_date, "endDate": end_date}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return {} if result is None else sort_items_by_date(result, True)
 
     @staticmethod
-    def get_tracklisting_latest(playlist_uuid, offset=0, limit=100):
+    async def get_tracklisting_latest(playlist_uuid, offset=0, limit=100):
         """
         Get the latest playlist’s tracklisting.
 
@@ -190,11 +194,11 @@ class Playlist:
         """
         endpoint = f"/api/v2.20/playlist/{playlist_uuid}/tracks/latest"
         params = {"offset": offset, "limit": limit}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_tracklisting_dates(
+    async def get_tracklisting_dates(
         playlist_uuid, start_date=None, end_date=None, offset=0, limit=100
     ):
         """
@@ -214,11 +218,11 @@ class Playlist:
             "offset": offset,
             "limit": limit,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return {} if result is None else sort_items_by_date(result, True, None)
 
     @staticmethod
-    def get_tracklisting_for_a_date(playlist_uuid, datetime, offset=0, limit=100):
+    async def get_tracklisting_for_a_date(playlist_uuid, datetime, offset=0, limit=100):
         """
         Get the playlist’s tracklisting for a date.
 
@@ -230,5 +234,5 @@ class Playlist:
         """
         endpoint = f"/api/v2.20/playlist/{playlist_uuid}/tracks/{datetime}"
         params = {"offset": offset, "limit": limit}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}

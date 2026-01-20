@@ -1,9 +1,9 @@
-from .api_util import request_wrapper, request_looper
+from .api_util import request_looper, request_wrapper
 
 
 class Deprecated:
     @staticmethod
-    def get_artist_ranking(
+    async def get_artist_ranking(
         platform="spotify",
         metric_type="followers",
         country_code=None,
@@ -60,11 +60,11 @@ class Deprecated:
             "token": token,
         }
 
-        result = request_wrapper(endpoint, params)
+        result = await request_wrapper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_songs_ranking(
+    async def get_songs_ranking(
         platform="spotify",
         metric_type="streams",
         sort_by="total",
@@ -111,11 +111,11 @@ class Deprecated:
             "limit": limit,
         }
 
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_songkick_events(
+    async def get_songkick_events(
         artist_uuid,
         event_type="all",
         period_type="all",
@@ -146,5 +146,5 @@ class Deprecated:
             "sortBy": sort_by,
             "sortOrder": sort_order,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}

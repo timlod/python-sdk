@@ -13,6 +13,7 @@ You will need a Soundcharts API subscription to use this package.
 - Easily pull data from Soundcharts' API.
 - Every endpoint from the documentation is available as a Python function.
   - For example, the "get audience" endpoint in the "playlist" category is accessible via `playlist.get_audience()`.
+- All endpoints are async and should be awaited.
 - Automatically loops through endpoints to get around API limitations, such as the limit of 100 items per request.
 - Configurable error handling.
 
@@ -23,13 +24,19 @@ You will need a Soundcharts API subscription to use this package.
 ## Usage
 
 ```python
+import asyncio
 from soundcharts.client import SoundchartsClient
 
-sc = SoundchartsClient(app_id="your_app_id", api_key="your_api_key")
+async def main():
+    sc = SoundchartsClient(app_id="your_app_id", api_key="your_api_key")
 
-# Example with Billie Eilish's UUID
-billie_metadata = sc.artist.get_artist_metadata("11e81bcc-9c1c-ce38-b96b-a0369fe50396")
-print(billie_metadata)
+    # Example with Billie Eilish's UUID
+    billie_metadata = await sc.artist.get_artist_metadata(
+        "11e81bcc-9c1c-ce38-b96b-a0369fe50396"
+    )
+    print(billie_metadata)
+
+asyncio.run(main())
 ```
 
 ## Error handling
@@ -40,11 +47,13 @@ You can set the severity of the console logs, file logs, and exceptions:
 from soundcharts.client import SoundchartsClient
 import logging
 
-sc = SoundchartsClient( app_id="your_app_id",
-                        api_key="your_api_key",
-                        console_log_level=logging.INFO,
-                        file_log_level=logging.WARNING,
-                        exception_log_level=logging.ERROR)
+sc = SoundchartsClient(
+    app_id="your_app_id",
+    api_key="your_api_key",
+    console_log_level=logging.INFO,
+    file_log_level=logging.WARNING,
+    exception_log_level=logging.ERROR,
+)
 ```
 
 Setting the level of the console or file log to `logging.DEBUG` will log each request send to the API.
@@ -55,16 +64,23 @@ You can specify the number of requests to run in parallel.
 It's especially useful when looping through a lot of calls, like in this case fetching 3 months of Billie Eilish's radio airplay (about 3,000 calls):
 
 ```python
+import asyncio
 from soundcharts.client import SoundchartsClient
 import logging
 
-sc = SoundchartsClient( app_id="your_app_id",
-                        api_key="your_api_key",
-                        parallel_requests=10)
+async def main():
+    sc = SoundchartsClient(
+        app_id="your_app_id",
+        api_key="your_api_key",
+        parallel_requests=10,
+    )
 
-billie = "11e81bcc-9c1c-ce38-b96b-a0369fe50396"
+    billie = "11e81bcc-9c1c-ce38-b96b-a0369fe50396"
 
-response = sc.artist.get_radio_spins(
-    billie, start_date="2025-01-01", end_date="2025-03-31", limit=None
-)
+    response = await sc.artist.get_radio_spins(
+        billie, start_date="2025-01-01", end_date="2025-03-31", limit=None
+    )
+    print(response)
+
+asyncio.run(main())
 ```

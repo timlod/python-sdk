@@ -1,10 +1,10 @@
-from .api_util import request_wrapper, request_looper, sort_items_by_date
+from .api_util import request_looper, request_wrapper, sort_items_by_date
 
 
 class Radio:
 
     @staticmethod
-    def get_radios(
+    async def get_radios(
         offset=0,
         limit=100,
         body=None,
@@ -43,11 +43,13 @@ class Radio:
             "limit": limit,
         }
 
-        result = request_looper(endpoint, params, body, print_progress=print_progress)
+        result = await request_looper(
+            endpoint, params, body, print_progress=print_progress
+        )
         return result if result is not None else {}
 
     @staticmethod
-    def get_radios_by_country(country_code, offset=0, limit=100):
+    async def get_radios_by_country(country_code, offset=0, limit=100):
         """
         Get the listing of all radios available on Soundcharts in a specific country.
 
@@ -58,11 +60,13 @@ class Radio:
         """
         endpoint = f"/api/v2.22/radio/by-country/{country_code}"
         params = {"offset": offset, "limit": limit}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_live_feed(radio_slug, start_date=None, end_date=None, offset=0, limit=100):
+    async def get_live_feed(
+        radio_slug, start_date=None, end_date=None, offset=0, limit=100
+    ):
         """
         Get a specific radio’s live feed for a specific range of dates.
 
@@ -81,11 +85,11 @@ class Radio:
             "offset": offset,
             "limit": limit,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return {} if result is None else sort_items_by_date(result, True, key="airedAt")
 
     @staticmethod
-    def get_ids(radio_slug, platform=None, offset=0, limit=100):
+    async def get_ids(radio_slug, platform=None, offset=0, limit=100):
         """
         Get platform URLs belonging to this radio.
 
@@ -98,5 +102,5 @@ class Radio:
         params = {"platform": platform, "offset": offset, "limit": limit}
 
         endpoint = f"/api/v2/radio/{radio_slug}/identifiers"
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}

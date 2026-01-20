@@ -1,11 +1,12 @@
-from .api_util import request_wrapper, request_looper
 import json
+
+from .api_util import request_looper, request_wrapper
 
 
 class MyLibrary:
 
     @staticmethod
-    def get_artist_list(offset=0, limit=100):
+    async def get_artist_list(offset=0, limit=100):
         """
         Get all artists in your personal library.
 
@@ -16,11 +17,11 @@ class MyLibrary:
         params = {"offset": offset, "limit": limit}
 
         endpoint = f"/api/v2/library/artist"
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def add_artists_ids(identifiers):
+    async def add_artists_ids(identifiers):
         """
         Add artists to your personal library. This endpoint is restricted to specific plans.
 
@@ -37,11 +38,11 @@ class MyLibrary:
 
         body = json.dumps({"identifiers": identifiers})
 
-        result = request_wrapper(endpoint, body=body)
+        result = await request_wrapper(endpoint, body=body)
         return result if result is not None else {}
 
     @staticmethod
-    def delete_artists_ids(identifiers):
+    async def delete_artists_ids(identifiers):
         """
         Add artists to your personal library. This endpoint is restricted to specific plans.
 
@@ -58,11 +59,11 @@ class MyLibrary:
 
         body = json.dumps({"identifiers": identifiers})
 
-        result = request_wrapper(endpoint, body=body, method="delete")
+        result = await request_wrapper(endpoint, body=body, method="delete")
         return result if result is not None else {}
 
     @staticmethod
-    def get_song_list(offset=0, limit=100):
+    async def get_song_list(offset=0, limit=100):
         """
         Get all songs in your personal library.
 
@@ -73,11 +74,11 @@ class MyLibrary:
         params = {"offset": offset, "limit": limit}
 
         endpoint = f"/api/v2/library/song"
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def add_songs_ids(identifiers):
+    async def add_songs_ids(identifiers):
         """
         Add songs to your personal library. This endpoint is restricted to specific plans.
 
@@ -94,11 +95,11 @@ class MyLibrary:
 
         body = json.dumps({"identifiers": identifiers})
 
-        result = request_wrapper(endpoint, body=body)
+        result = await request_wrapper(endpoint, body=body)
         return result if result is not None else {}
 
     @staticmethod
-    def delete_songs_ids(identifiers):
+    async def delete_songs_ids(identifiers):
         """
         Add songs to your personal library. This endpoint is restricted to specific plans.
 
@@ -115,5 +116,5 @@ class MyLibrary:
 
         body = json.dumps({"identifiers": identifiers})
 
-        result = request_wrapper(endpoint, body=body, method="delete")
+        result = await request_wrapper(endpoint, body=body, method="delete")
         return result if result is not None else {}

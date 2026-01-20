@@ -1,10 +1,10 @@
-from .api_util import request_wrapper, request_looper, sort_items_by_date
+from .api_util import request_looper, request_wrapper, sort_items_by_date
 
 
 class Charts:
 
     @staticmethod
-    def get_radio_ranking(
+    async def get_radio_ranking(
         platform="instagram",
         metric_type="followers",
         sort_by="total",
@@ -45,11 +45,11 @@ class Charts:
             "token": token,
         }
 
-        result = request_wrapper(endpoint, params)
+        result = await request_wrapper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_song_chart_list_by_platform(
+    async def get_song_chart_list_by_platform(
         platform, country_code=None, offset=0, limit=100
     ):
         """
@@ -63,11 +63,11 @@ class Charts:
         """
         endpoint = f"/api/v2/chart/song/by-platform/{platform}"
         params = {"countryCode": country_code, "offset": offset, "limit": limit}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_song_ranking_latest(chart_slug, offset=0, limit=100):
+    async def get_song_ranking_latest(chart_slug, offset=0, limit=100):
         """
         Get the latest song ranking for a specific chart.
 
@@ -78,11 +78,11 @@ class Charts:
         """
         endpoint = f"/api/v2.14/chart/song/{chart_slug}/ranking/latest"
         params = {"offset": offset, "limit": limit}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_song_ranking_dates(chart_slug, offset=0, limit=100):
+    async def get_song_ranking_dates(chart_slug, offset=0, limit=100):
         """
         Get the available song chart ranking dates.
 
@@ -93,11 +93,11 @@ class Charts:
         """
         endpoint = f"/api/v2/chart/song/{chart_slug}/available-rankings"
         params = {"offset": offset, "limit": limit}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return {} if result is None else sort_items_by_date(result, True, None)
 
     @staticmethod
-    def get_song_ranking_for_a_date(chart_slug, datetime, offset=0, limit=100):
+    async def get_song_ranking_for_a_date(chart_slug, datetime, offset=0, limit=100):
         """
         Get the ranking for a song chart on a specific date.
 
@@ -109,11 +109,11 @@ class Charts:
         """
         endpoint = f"/api/v2.14/chart/song/{chart_slug}/ranking/{datetime}"
         params = {"offset": offset, "limit": limit}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_album_chart_list_by_platform(
+    async def get_album_chart_list_by_platform(
         platform, country_code=None, offset=0, limit=100
     ):
         """
@@ -127,11 +127,11 @@ class Charts:
         """
         endpoint = f"/api/v2/chart/album/by-platform/{platform}"
         params = {"countryCode": country_code, "offset": offset, "limit": limit}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_album_ranking_latest(chart_slug, offset=0, limit=100):
+    async def get_album_ranking_latest(chart_slug, offset=0, limit=100):
         """
         Get the latest album ranking for a specific chart.
 
@@ -142,11 +142,11 @@ class Charts:
         """
         endpoint = f"/api/v2.26/chart/album/{chart_slug}/ranking/latest"
         params = {"offset": offset, "limit": limit}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_album_ranking_dates(chart_slug, offset=0, limit=100):
+    async def get_album_ranking_dates(chart_slug, offset=0, limit=100):
         """
         Get the available album chart ranking dates.
 
@@ -157,11 +157,11 @@ class Charts:
         """
         endpoint = f"/api/v2/chart/album/{chart_slug}/available-rankings"
         params = {"offset": offset, "limit": limit}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return {} if result is None else sort_items_by_date(result, True, None)
 
     @staticmethod
-    def get_album_ranking_for_a_date(chart_slug, datetime, offset=0, limit=100):
+    async def get_album_ranking_for_a_date(chart_slug, datetime, offset=0, limit=100):
         """
         Get the ranking for an album chart on a specific date.
 
@@ -173,11 +173,11 @@ class Charts:
         """
         endpoint = f"/api/v2.26/chart/album/{chart_slug}/ranking/{datetime}"
         params = {"offset": offset, "limit": limit}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_tiktok_music_links_ranking_latest(offset=0, limit=100):
+    async def get_tiktok_music_links_ranking_latest(offset=0, limit=100):
         """
         Get the latest ranking of trending TikTok music links. This endpoint is restricted to specific plans.
 
@@ -187,11 +187,11 @@ class Charts:
         """
         endpoint = f"/api/v2/chart/tiktok/music/weekly/ranking/latest"
         params = {"offset": offset, "limit": limit}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_tiktok_music_links_ranking_dates(offset=0, limit=100):
+    async def get_tiktok_music_links_ranking_dates(offset=0, limit=100):
         """
         Get the available TikTok music links chart ranking dates. This endpoint is restricted to specific plans.
 
@@ -201,11 +201,11 @@ class Charts:
         """
         endpoint = f"/api/v2/chart/tiktok/music/weekly/available-rankings"
         params = {"offset": offset, "limit": limit}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_tiktok_music_links_ranking_for_a_date(datetime, offset=0, limit=100):
+    async def get_tiktok_music_links_ranking_for_a_date(datetime, offset=0, limit=100):
         """
         Get the ranking of trending TikTok music links for a specific date. This endpoint is restricted to specific plans.
 
@@ -216,5 +216,5 @@ class Charts:
         """
         endpoint = f"/api/v2/chart/tiktok/music/weekly/ranking/{datetime}"
         params = {"offset": offset, "limit": limit}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}

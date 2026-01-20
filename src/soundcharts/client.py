@@ -1,19 +1,20 @@
 import importlib.util
 import logging
-from .api_util import setup as api_setup
-from .search import Search
-from .artist import Artist
-from .song import Song
+
 from .album import Album
+from .api_util import setup as api_setup
+from .artist import Artist
 from .charts import Charts
+from .festival import Festival
+from .mylibrary import MyLibrary
 from .playlist import Playlist
 from .radio import Radio
-from .festival import Festival
-from .venue import Venue
+from .referential import Referential
+from .search import Search
+from .song import Song
 from .tiktok import Tiktok
 from .user import User
-from .mylibrary import MyLibrary
-from .referential import Referential
+from .venue import Venue
 
 
 class SoundchartsClient:
@@ -48,6 +49,7 @@ class SoundchartsClient:
         :param file_log_level: The severity of issues written to the logging file. Default: logging.WARNING.
         :param exception_log_level: The severity of issues that cause exceptions. Default: logging.ERROR.
         """
+        self.base_url = base_url
 
         api_setup(
             app_id,

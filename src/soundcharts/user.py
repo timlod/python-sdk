@@ -1,9 +1,9 @@
-from .api_util import request_wrapper, request_looper
+from .api_util import request_looper, request_wrapper
 
 
 class User:
     @staticmethod
-    def get_blocklists_artists(email, offset=0, limit=100):
+    async def get_blocklists_artists(email, offset=0, limit=100):
         """
         Get a dashboard user’s blocklists for artist profiles.
 
@@ -15,11 +15,11 @@ class User:
         params = {"offset": offset, "limit": limit}
 
         endpoint = f"/api/v2/user/{email}/blocklist/artists"
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_blocklists_songs(email, offset=0, limit=100):
+    async def get_blocklists_songs(email, offset=0, limit=100):
         """
         Get a dashboard user’s blocklists for song profiles.
 
@@ -31,11 +31,11 @@ class User:
         params = {"offset": offset, "limit": limit}
 
         endpoint = f"/api/v2/user/{email}/blocklist/songs"
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_blocklists_labels(email, offset=0, limit=100):
+    async def get_blocklists_labels(email, offset=0, limit=100):
         """
         Get a dashboard user’s blocklists for labels profiles.
 
@@ -47,5 +47,5 @@ class User:
         params = {"offset": offset, "limit": limit}
 
         endpoint = f"/api/v2/user/{email}/blocklist/labels"
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}

@@ -1,9 +1,9 @@
-from .api_util import request_wrapper, request_looper, sort_items_by_date
+from .api_util import request_looper, request_wrapper, sort_items_by_date
 
 
 class Song:
     @staticmethod
-    def get_songs(offset=0, limit=100, body=None, print_progress=False):
+    async def get_songs(offset=0, limit=100, body=None, print_progress=False):
         """
         You can sort songs in our database using specific parameters such as platform, metric type, or time period, and filter them based on attributes like artist nationality, ISRC country, song genre, release date, attributes from lyrics analysis, etc. or performance metrics.
         Available platfom/metricType combinations can be found in the documentation: https://developers.soundcharts.com/documentation/reference/song/get-songs
@@ -33,11 +33,13 @@ class Song:
             "limit": limit,
         }
 
-        result = request_looper(endpoint, params, body, print_progress=print_progress)
+        result = await request_looper(
+            endpoint, params, body, print_progress=print_progress
+        )
         return result if result is not None else {}
 
     @staticmethod
-    def get_song_metadata(song_uuid):
+    async def get_song_metadata(song_uuid):
         """
         Get song metadata/ISRC using their UUID.
 
@@ -46,11 +48,11 @@ class Song:
         """
 
         endpoint = f"/api/v2.25/song/{song_uuid}"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_song_by_isrc(isrc):
+    async def get_song_by_isrc(isrc):
         """
         Get Soundcharts’ UUID & the song's metadata.
 
@@ -59,11 +61,11 @@ class Song:
         """
 
         endpoint = f"/api/v2.25/song/by-isrc/{isrc}"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_song_by_platform_id(platform, identifier):
+    async def get_song_by_platform_id(platform, identifier):
         """
         Get Soundcharts’ UUID & the song's metadata.
 
@@ -73,11 +75,11 @@ class Song:
         """
 
         endpoint = f"/api/v2.25/song/by-platform/{platform}/{identifier}"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_lyrics_analysis(song_uuid):
+    async def get_lyrics_analysis(song_uuid):
         """
         Access detailed insights from song lyrics.
 
@@ -86,11 +88,13 @@ class Song:
         """
 
         endpoint = f"/api/v2/song/{song_uuid}/lyrics-analysis"
-        result = request_wrapper(endpoint)
+        result = await request_wrapper(endpoint)
         return result if result is not None else {}
 
     @staticmethod
-    def get_ids(song_uuid, platform=None, only_default=False, offset=0, limit=100):
+    async def get_ids(
+        song_uuid, platform=None, only_default=False, offset=0, limit=100
+    ):
         """
         Get platform URLs/ISNI associated with a specific song.
 
@@ -109,11 +113,11 @@ class Song:
         }
 
         endpoint = f"/api/v2/song/{song_uuid}/identifiers"
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_albums(
+    async def get_albums(
         song_uuid,
         album_type="all",
         offset=0,
@@ -141,11 +145,11 @@ class Song:
             "sortBy": sort_by,
             "sortOrder": sort_order,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_audience(
+    async def get_audience(
         song_uuid, platform="spotify", start_date=None, end_date=None, identifier=None
     ):
         """
@@ -165,11 +169,13 @@ class Song:
             "endDate": end_date,
             "identifier": identifier,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return {} if result is None else sort_items_by_date(result, True)
 
     @staticmethod
-    def get_popularity(song_uuid, platform="spotify", start_date=None, end_date=None):
+    async def get_popularity(
+        song_uuid, platform="spotify", start_date=None, end_date=None
+    ):
         """
         Song popularity metric indicates how popular a song is on a specific platform. It is calculated by the platform.
 
@@ -181,11 +187,11 @@ class Song:
         """
         endpoint = f"/api/v2/song/{song_uuid}/popularity/{platform}"
         params = {"startDate": start_date, "endDate": end_date}
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return {} if result is None else sort_items_by_date(result, True)
 
     @staticmethod
-    def get_chart_entries(
+    async def get_chart_entries(
         song_uuid,
         platform="spotify",
         current_only=1,
@@ -214,11 +220,11 @@ class Song:
             "sortBy": sort_by,
             "sortOrder": sort_order,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_playlist_entries(
+    async def get_playlist_entries(
         song_uuid,
         platform="spotify",
         playlist_type="all",
@@ -256,11 +262,11 @@ class Song:
             "sortBy": sort_by,
             "sortOrder": sort_order,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_playlist_reach(
+    async def get_playlist_reach(
         song_uuid,
         platform="spotify",
         playlist_type="all",
@@ -290,11 +296,11 @@ class Song:
             "offset": offset,
             "limit": limit,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def get_radio_spins(
+    async def get_radio_spins(
         song_uuid,
         radio_slugs=None,
         country_code=None,
@@ -325,11 +331,11 @@ class Song:
             "offset": offset,
             "limit": limit,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return {} if result is None else sort_items_by_date(result, key="airedAt")
 
     @staticmethod
-    def get_radio_spin_count(
+    async def get_radio_spin_count(
         song_uuid,
         radio_slugs=None,
         country_code=None,
@@ -360,11 +366,11 @@ class Song:
             "offset": offset,
             "limit": limit,
         }
-        result = request_looper(endpoint, params)
+        result = await request_looper(endpoint, params)
         return result if result is not None else {}
 
     @staticmethod
-    def add_links(song_uuid, links):
+    async def add_links(song_uuid, links):
         """
         Add/submit missing links to song profiles.
 
@@ -376,5 +382,5 @@ class Song:
 
         body = {"urls": links}
 
-        result = request_wrapper(endpoint, body=body)
+        result = await request_wrapper(endpoint, body=body)
         return result if result is not None else {}
