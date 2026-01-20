@@ -72,14 +72,14 @@ def setup(
 
 async def request_wrapper(
     endpoint: str,
-    params: dict | None = None,
-    body: dict | None = None,
+    params: dict[str, object] | None = None,
+    body: dict[str, object] | None = None,
     max_retries: int | None = None,
     retry_delay: int | None = None,
     timeout: int | None = None,
     method: str | None = None,
     session: aiohttp.ClientSession | None = None,
-):
+) -> object | None:
     """
     Async HTTP wrapper with retries.
     """
@@ -102,29 +102,28 @@ async def request_wrapper(
     if body:
         headers["Content-Type"] = "application/json"
 
+    if method is None:
+        method_name = "POST" if body else "GET"
+    elif method.lower() == "delete":
+        method_name = "DELETE"
+    else:
+        raise ValueError(f"Unsupported HTTP method: {method}")
+
+    full_url = f"{url}?{urlencode(params, doseq=True)}" if params else url
+
     owns_session = False
     if session is None:
         timeout_cfg = aiohttp.ClientTimeout(total=timeout)
         session = aiohttp.ClientSession(timeout=timeout_cfg)
         owns_session = True
 
+    # Otherwise max_retries=0 will result in no attempts
+    attempts = max_retries + 1
     try:
-        for attempt in range(max_retries):
+        for attempt in range(1, attempts + 1):
             try:
-                if method is None:
-                    method_name = "POST" if body else "GET"
-                elif method.lower() == "delete":
-                    method_name = "DELETE"
-                else:
-                    raise ValueError(f"Unsupported HTTP method: {method}")
-
-                if params:
-                    full_url = f"{url}?{urlencode(params, doseq=True)}"
-                else:
-                    full_url = url
-
                 logger.info(
-                    f"Attempt {attempt + 1}/{max_retries}: {method_name} {full_url}"
+                    f"Attempt {attempt}/{attempts}: {method_name} {full_url}"
                 )
                 logger.debug(f"Headers: {headers}")
                 if params:
@@ -162,7 +161,6 @@ async def request_wrapper(
                     except Exception:
                         message = text
 
-                    # 404
                     if status == HTTPStatus.NOT_FOUND:
                         log_msg = f"404 Not Found: {full_url} — {message}"
                         logger.warning(log_msg)
@@ -170,53 +168,53 @@ async def request_wrapper(
                             raise RuntimeError(log_msg)
                         return None
 
-                    # 5xx
+                    retry_delay_override = None
+                    if status == HTTPStatus.TOO_MANY_REQUESTS:
+                        if "maximum request count" in message:
+                            retry_delay_override = 30
+                        else:
+                            retry_delay_override = retry_delay
                     elif status in {
-                        HTTPStatus.INTERNAL_SERVER_ERROR,
                         HTTPStatus.BAD_GATEWAY,
                         HTTPStatus.SERVICE_UNAVAILABLE,
                         HTTPStatus.GATEWAY_TIMEOUT,
                     }:
-                        logger.warning(
-                            f"{status} Server Error: {message} when calling {full_url} — "
-                            f"Retrying ({attempt + 1}/{max_retries})"
-                        )
-                        await asyncio.sleep(retry_delay)
+                        retry_delay_override = retry_delay
 
-                    # Auth / rate limit
-                    elif status in {
+                    if retry_delay_override is not None and attempt < attempts:
+                        logger.warning(
+                            f"{status} Error: {message} when calling {full_url} — "
+                            f"Retrying in {retry_delay_override} seconds ({attempt}/{attempts})"
+                        )
+                        await asyncio.sleep(retry_delay_override)
+                        continue
+
+                    if status in {
                         HTTPStatus.TOO_MANY_REQUESTS,
                         HTTPStatus.FORBIDDEN,
                         HTTPStatus.UNAUTHORIZED,
                     }:
-                        if (
-                            status == HTTPStatus.TOO_MANY_REQUESTS
-                            and "maximum request count" in message
-                        ):
-                            logger.warning(
-                                f"{status} Error: {message} when calling {full_url} — "
-                                f"Retrying in 30 seconds ({attempt + 1}/{max_retries})"
-                            )
-                            await asyncio.sleep(30)
-                        else:
-                            log_msg = f"{status} Error: {message} when calling {full_url}"
-                            logger.error(log_msg)
-                            if logging.ERROR >= EXCEPTION_LOG_LEVEL:
-                                raise RuntimeError(log_msg)
-                            return None
-
-                    else:
-                        log_msg = f"{status} Unknown Error: {message} when calling {full_url}"
+                        log_msg = f"{status} Error: {message} when calling {full_url}"
                         logger.error(log_msg)
                         if logging.ERROR >= EXCEPTION_LOG_LEVEL:
-                            raise RuntimeError(f"HTTP {status}: {message}")
+                            raise RuntimeError(log_msg)
+                        return None
+
+                    log_msg = (
+                        f"{status} Error: {message} when calling {full_url}"
+                    )
+                    logger.error(log_msg)
+                    if logging.ERROR >= EXCEPTION_LOG_LEVEL:
+                        raise RuntimeError(f"HTTP {status}: {message}")
+                    return None
 
             except (aiohttp.ClientError, asyncio.TimeoutError) as e:
                 logger.error(f"Request exception: {e}")
-                if attempt == max_retries - 1:
+                if attempt >= attempts:
                     raise RuntimeError(
                         f"Maximum retry attempts reached when calling {full_url}."
                     ) from e
+                await asyncio.sleep(retry_delay)
 
         final_msg = f"Unhandled error or maximum retries exceeded when calling {full_url}."
         logger.error(final_msg)
