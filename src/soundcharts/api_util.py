@@ -6,7 +6,6 @@ from http import HTTPStatus
 from urllib.parse import urlencode
 
 import aiohttp
-from requests.structures import CaseInsensitiveDict
 
 # Logger setup
 logger = logging.getLogger(__name__)
@@ -52,7 +51,6 @@ def setup(
 ):
     global HEADERS, BASE_URL, PARALLEL_REQUESTS, MAX_RETRIES, RETRY_DELAY, TIMEOUT, EXCEPTION_LOG_LEVEL
 
-    HEADERS = CaseInsensitiveDict()
     HEADERS["x-app-id"] = app_id
     HEADERS["x-api-key"] = api_key
 
