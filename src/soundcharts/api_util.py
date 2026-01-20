@@ -111,6 +111,15 @@ async def request_wrapper_async(
     if body:
         headers["Content-Type"] = "application/json"
 
+    if method is None:
+        method_name = "POST" if body else "GET"
+    elif method.lower() == "delete":
+        method_name = "DELETE"
+    else:
+        raise ValueError(f"Unsupported HTTP method: {method}")
+
+    full_url = f"{url}?{urlencode(params, doseq=True)}" if params else url
+
     owns_session = False
     if session is None:
         timeout_cfg = aiohttp.ClientTimeout(total=timeout)
@@ -122,18 +131,6 @@ async def request_wrapper_async(
     try:
         for attempt in range(1, attempts + 1):
             try:
-                if method is None:
-                    method_name = "POST" if body else "GET"
-                elif method.lower() == "delete":
-                    method_name = "DELETE"
-                else:
-                    raise ValueError(f"Unsupported HTTP method: {method}")
-
-                if params:
-                    full_url = f"{url}?{urlencode(params, doseq=True)}"
-                else:
-                    full_url = url
-
                 logger.info(
                     f"Attempt {attempt}/{attempts}: {method_name} {full_url}"
                 )
