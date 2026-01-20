@@ -185,7 +185,6 @@ async def request_wrapper_async(
 
                     # 5xx
                     elif status in {
-                        HTTPStatus.INTERNAL_SERVER_ERROR,
                         HTTPStatus.BAD_GATEWAY,
                         HTTPStatus.SERVICE_UNAVAILABLE,
                         HTTPStatus.GATEWAY_TIMEOUT,
