@@ -1,10 +1,9 @@
 from .api_util import (
-    request_wrapper,
     request_looper,
-    request_wrapper_async,
     request_looper_async,
+    request_wrapper,
+    request_wrapper_async,
 )
-import json
 
 
 class MyLibrary:
@@ -40,7 +39,7 @@ class MyLibrary:
         """
         endpoint = f"/api/v2/library/artist"
 
-        body = json.dumps({"identifiers": identifiers})
+        body = {"identifiers": identifiers}
 
         result = request_wrapper(endpoint, body=body)
         return result if result is not None else {}
@@ -61,7 +60,7 @@ class MyLibrary:
         """
         endpoint = f"/api/v2/library/artist"
 
-        body = json.dumps({"identifiers": identifiers})
+        body = {"identifiers": identifiers}
 
         result = request_wrapper(endpoint, body=body, method="delete")
         return result if result is not None else {}
@@ -97,7 +96,7 @@ class MyLibrary:
         """
         endpoint = f"/api/v2/library/song"
 
-        body = json.dumps({"identifiers": identifiers})
+        body = {"identifiers": identifiers}
 
         result = request_wrapper(endpoint, body=body)
         return result if result is not None else {}
@@ -118,7 +117,7 @@ class MyLibrary:
         """
         endpoint = f"/api/v2/library/song"
 
-        body = json.dumps({"identifiers": identifiers})
+        body = {"identifiers": identifiers}
 
         result = request_wrapper(endpoint, body=body, method="delete")
         return result if result is not None else {}
@@ -157,7 +156,7 @@ class MyLibraryAsync:
         """
         endpoint = f"/api/v2/library/artist"
 
-        body = json.dumps({"identifiers": identifiers})
+        body = {"identifiers": identifiers}
 
         result = await request_wrapper_async(endpoint, body=body)
         return result if result is not None else {}
@@ -178,9 +177,11 @@ class MyLibraryAsync:
         """
         endpoint = f"/api/v2/library/artist"
 
-        body = json.dumps({"identifiers": identifiers})
+        body = {"identifiers": identifiers}
 
-        result = await request_wrapper_async(endpoint, body=body, method="delete")
+        result = await request_wrapper_async(
+            endpoint, body=body, method="delete"
+        )
         return result if result is not None else {}
 
     @staticmethod
@@ -214,7 +215,7 @@ class MyLibraryAsync:
         """
         endpoint = f"/api/v2/library/song"
 
-        body = json.dumps({"identifiers": identifiers})
+        body = {"identifiers": identifiers}
 
         result = await request_wrapper_async(endpoint, body=body)
         return result if result is not None else {}
@@ -235,7 +236,9 @@ class MyLibraryAsync:
         """
         endpoint = f"/api/v2/library/song"
 
-        body = json.dumps({"identifiers": identifiers})
+        body = {"identifiers": identifiers}
 
-        result = await request_wrapper_async(endpoint, body=body, method="delete")
+        result = await request_wrapper_async(
+            endpoint, body=body, method="delete"
+        )
         return result if result is not None else {}
