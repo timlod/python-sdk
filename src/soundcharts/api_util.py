@@ -28,8 +28,8 @@ log_file_handler.setFormatter(
 )
 
 # Global config
-HEADERS = None
-BASE_URL = None
+HEADERS = {}
+BASE_URL = "https://customer.api.soundcharts.com"
 PARALLEL_REQUESTS = 5
 MAX_RETRIES = 5
 RETRY_DELAY = 10
@@ -38,13 +38,13 @@ EXCEPTION_LOG_LEVEL = logging.ERROR
 
 
 def setup(
-    app_id,
-    api_key,
-    base_url="https://customer.api.soundcharts.com",
-    parallel_requests=5,
-    max_retries=5,
-    retry_delay=10,
-    timeout=10,
+    app_id: str,
+    api_key: str,
+    base_url: str = "https://customer.api.soundcharts.com",
+    parallel_requests: int = 5,
+    max_retries: int = 5,
+    retry_delay: int = 10,
+    timeout: int = 10,
     console_log_level=logging.WARNING,
     file_log_level=logging.WARNING,
     exception_log_level=logging.ERROR,
