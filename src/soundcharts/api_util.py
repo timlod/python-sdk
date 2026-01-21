@@ -299,6 +299,8 @@ async def request_looper_async(
             return results
 
         items = list(results.get("items", []))
+        pages = {offset: items}
+        fetched_count = len(items)
 
         first_page = results.get("page", {}) or {}
         total_server = first_page.get("total", len(items))
@@ -385,18 +387,22 @@ async def request_looper_async(
 
             page_items = response.get("items") or []
             if page_items:
-                items.extend(page_items)
+                pages[off] = page_items
 
             page_block = response.get("page") or {}
             if off >= last_page_offset and page_block:
                 last_page_offset = off
                 last_page_block = page_block
 
+
+            if page_items:
+                fetched_count += len(page_items)
+
             if print_progress:
-                progress = min(len(items), total_effective)
+                progress = min(fetched_count, total_effective)
                 print_percentage(progress, total_effective)
 
-            if len(items) >= total_effective:
+            if fetched_count >= total_effective:
                 break
 
         # Make sure to cancel all tasks which aren't done
@@ -405,6 +411,11 @@ async def request_looper_async(
             task.cancel()
         if pending:
             await asyncio.gather(*pending, return_exceptions=True)
+
+        ordered_items = []
+        for off in sorted(pages):
+            ordered_items.extend(pages[off])
+        items = ordered_items
         if limit is not None:
             items = items[:limit]
 
