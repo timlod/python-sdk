@@ -355,13 +355,31 @@ async def request_looper_async(
                 )
             return off, resp
 
-        tasks = [asyncio.create_task(fetch_page(o)) for o in extra_offsets]
+        tasks = {
+            asyncio.create_task(fetch_page(o)): o for o in extra_offsets
+        }
+
 
         last_page_offset = offset
         last_page_block = first_page if first_page else {}
 
         for task in asyncio.as_completed(tasks):
-            off, response = await task
+            try:
+                off, response = await task
+            except Exception as exc:
+                # If one task fails, cancel all other tasks
+                logger.error(
+                    "Request task failed for %s offset=%s: %s",
+                    endpoint,
+                    tasks.get(task, "unknown"),
+                    exc,
+                )
+                pending = [item for item in tasks if not item.done()]
+                for pending_task in pending:
+                    pending_task.cancel()
+                if pending:
+                    await asyncio.gather(*pending, return_exceptions=True)
+                break
             if not response or "items" not in response:
                 continue
 
@@ -381,6 +399,12 @@ async def request_looper_async(
             if len(items) >= total_effective:
                 break
 
+        # Make sure to cancel all tasks which aren't done
+        pending = [task for task in tasks if not task.done()]
+        for task in pending:
+            task.cancel()
+        if pending:
+            await asyncio.gather(*pending, return_exceptions=True)
         if limit is not None:
             items = items[:limit]
 
