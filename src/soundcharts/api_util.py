@@ -134,11 +134,11 @@ async def request_wrapper_async(
                 logger.info(
                     f"Attempt {attempt}/{attempts}: {method_name} {full_url}"
                 )
-                logger.debug(f"Headers: {headers}")
+                logger.debug("Headers: %s", headers)
                 if params:
-                    logger.debug(f"Params: {params}")
+                    logger.debug("Params: %s", params)
                 if body:
-                    logger.debug(f"Body: {json.dumps(body)}")
+                    logger.debug("Body: %s", json.dumps(body))
 
                 async with session.request(
                     method_name,
@@ -150,8 +150,8 @@ async def request_wrapper_async(
                     status = response.status
                     text = await response.text()
 
-                    logger.debug(f"Response Status: {status}")
-                    logger.debug(f"Response Body: {text}")
+                    logger.debug("Response Status: %s", status)
+                    logger.debug("Response Body: %s", text)
 
                     # Remaining requests
                     quota = response.headers.get("x-quota-remaining")
