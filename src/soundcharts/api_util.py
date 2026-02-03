@@ -154,15 +154,25 @@ async def request_wrapper_async(
                     logger.debug(f"Response Body: {text}")
 
                     # Remaining requests
-                    quota = response.headers.get("x-quota-remaining")
-                    if quota in QUOTA_WARNING:
-                        logger.warning(f"{quota} calls remaining.")
+                    quota_raw = response.headers.get("x-quota-remaining")
+                    quota_remaining = None
+                    if quota_raw is not None:
+                        try:
+                            quota_remaining = int(quota_raw)
+                        except ValueError:
+                            quota_remaining = quota_raw
+                    if quota_remaining in QUOTA_WARNING:
+                        logger.warning(f"{quota_remaining} calls remaining.")
 
                     if status == HTTPStatus.OK:
                         try:
-                            return await response.json()
+                            payload = await response.json()
                         except Exception:
-                            return text
+                            payload = text
+
+                        if isinstance(payload, dict):
+                            payload.setdefault("quota_remaining", quota_remaining)
+                        return payload
 
                     # Extract error message
                     try:
@@ -301,6 +311,7 @@ async def request_looper_async(
         items = list(results.get("items", []))
         pages = {offset: items}
         fetched_count = len(items)
+        last_quota_remaining = results.get("quota_remaining")
 
         first_page = results.get("page", {}) or {}
         total_server = first_page.get("total", len(items))
@@ -388,6 +399,8 @@ async def request_looper_async(
             page_items = response.get("items") or []
             if page_items:
                 pages[off] = page_items
+            if "quota_remaining" in response:
+                last_quota_remaining = response.get("quota_remaining")
 
             page_block = response.get("page") or {}
             if off >= last_page_offset and page_block:
@@ -431,6 +444,8 @@ async def request_looper_async(
 
         results["page"].setdefault("offset", last_page_offset)
         results["page"].setdefault("limit", page_size)
+        if last_quota_remaining is not None:
+            results["quota_remaining"] = last_quota_remaining
 
         return results
 
