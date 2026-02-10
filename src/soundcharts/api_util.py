@@ -134,11 +134,11 @@ async def request_wrapper_async(
                 logger.info(
                     f"Attempt {attempt}/{attempts}: {method_name} {full_url}"
                 )
-                logger.debug(f"Headers: {headers}")
+                logger.debug("Headers: %s", headers)
                 if params:
-                    logger.debug(f"Params: {params}")
+                    logger.debug("Params: %s", params)
                 if body:
-                    logger.debug(f"Body: {json.dumps(body)}")
+                    logger.debug("Body: %s", json.dumps(body))
 
                 async with session.request(
                     method_name,
@@ -150,19 +150,29 @@ async def request_wrapper_async(
                     status = response.status
                     text = await response.text()
 
-                    logger.debug(f"Response Status: {status}")
-                    logger.debug(f"Response Body: {text}")
+                    logger.debug("Response Status: %s", status)
+                    logger.debug("Response Body: %s", text)
 
                     # Remaining requests
-                    quota = response.headers.get("x-quota-remaining")
-                    if quota in QUOTA_WARNING:
-                        logger.warning(f"{quota} calls remaining.")
+                    quota_raw = response.headers.get("x-quota-remaining")
+                    quota_remaining = None
+                    if quota_raw is not None:
+                        try:
+                            quota_remaining = int(quota_raw)
+                        except ValueError:
+                            quota_remaining = quota_raw
+                    if quota_remaining in QUOTA_WARNING:
+                        logger.warning(f"{quota_remaining} calls remaining.")
 
                     if status == HTTPStatus.OK:
                         try:
-                            return await response.json()
+                            payload = await response.json()
                         except Exception:
-                            return text
+                            payload = text
+
+                        if isinstance(payload, dict):
+                            payload.setdefault("quota_remaining", quota_remaining)
+                        return payload
 
                     # Extract error message
                     try:
@@ -299,6 +309,9 @@ async def request_looper_async(
             return results
 
         items = list(results.get("items", []))
+        pages = {offset: items}
+        fetched_count = len(items)
+        last_quota_remaining = results.get("quota_remaining")
 
         first_page = results.get("page", {}) or {}
         total_server = first_page.get("total", len(items))
@@ -355,32 +368,67 @@ async def request_looper_async(
                 )
             return off, resp
 
-        tasks = [asyncio.create_task(fetch_page(o)) for o in extra_offsets]
+        tasks = {
+            asyncio.create_task(fetch_page(o)): o for o in extra_offsets
+        }
+
 
         last_page_offset = offset
         last_page_block = first_page if first_page else {}
 
         for task in asyncio.as_completed(tasks):
-            off, response = await task
+            try:
+                off, response = await task
+            except Exception as exc:
+                # If one task fails, cancel all other tasks
+                logger.error(
+                    "Request task failed for %s offset=%s: %s",
+                    endpoint,
+                    tasks.get(task, "unknown"),
+                    exc,
+                )
+                pending = [item for item in tasks if not item.done()]
+                for pending_task in pending:
+                    pending_task.cancel()
+                if pending:
+                    await asyncio.gather(*pending, return_exceptions=True)
+                break
             if not response or "items" not in response:
                 continue
 
             page_items = response.get("items") or []
             if page_items:
-                items.extend(page_items)
+                pages[off] = page_items
+            if "quota_remaining" in response:
+                last_quota_remaining = response.get("quota_remaining")
 
             page_block = response.get("page") or {}
             if off >= last_page_offset and page_block:
                 last_page_offset = off
                 last_page_block = page_block
 
+
+            if page_items:
+                fetched_count += len(page_items)
+
             if print_progress:
-                progress = min(len(items), total_effective)
+                progress = min(fetched_count, total_effective)
                 print_percentage(progress, total_effective)
 
-            if len(items) >= total_effective:
+            if fetched_count >= total_effective:
                 break
 
+        # Make sure to cancel all tasks which aren't done
+        pending = [task for task in tasks if not task.done()]
+        for task in pending:
+            task.cancel()
+        if pending:
+            await asyncio.gather(*pending, return_exceptions=True)
+
+        ordered_items = []
+        for off in sorted(pages):
+            ordered_items.extend(pages[off])
+        items = ordered_items
         if limit is not None:
             items = items[:limit]
 
@@ -396,6 +444,8 @@ async def request_looper_async(
 
         results["page"].setdefault("offset", last_page_offset)
         results["page"].setdefault("limit", page_size)
+        if last_quota_remaining is not None:
+            results["quota_remaining"] = last_quota_remaining
 
         return results
 
