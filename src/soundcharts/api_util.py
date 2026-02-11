@@ -1,11 +1,12 @@
 import asyncio
-import aiohttp
 import json
 import logging
-from requests.structures import CaseInsensitiveDict
-from http import HTTPStatus
 from datetime import datetime
+from http import HTTPStatus
 from urllib.parse import urlencode
+
+import aiohttp
+from requests.structures import CaseInsensitiveDict
 
 # Logger setup
 logger = logging.getLogger(__name__)
@@ -245,6 +246,7 @@ async def request_wrapper_async(
                             raise RuntimeError(f"HTTP {status}: {message}")
 
             except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+                logger.warning(e)
                 if attempt >= attempts:
                     raise RuntimeError(
                         f"Maximum retry attempts reached when calling {full_url}."
